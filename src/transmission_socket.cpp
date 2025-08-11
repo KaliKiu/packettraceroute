@@ -13,6 +13,7 @@
 
     void Socket::createSocket(){
         this->quit=false;
+        this->count = 0;
         int socketfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
         if (socketfd < 0) { perror("socket"); return; }
 
@@ -60,7 +61,7 @@
 
         // Set 2-second timeout
         struct timeval timeout;
-        timeout.tv_sec = 2;
+        timeout.tv_sec = 5;
         timeout.tv_usec = 0;
 
         // Wait until socket is readable or timeout occurs
@@ -71,11 +72,11 @@
             return {};
         } else if (ret == 0) {
             // Timeout, no data available
-            printf("Timeout: no data received in 2 seconds\n");
+            printf("Timeout: no data received in %dseconds\n",timeout.tv_sec);
             //check if having to quit;
             if(this->count>MAX_NOREPLY_HOP){
                 this->quit=true;
-                Socket::storeQuitErrorInJson(ipcount,Socket::IP_ADDR);
+                Socket::jsonKeyValuePair(ipcount,"Timeout Error","Quit after getting no response after"+std::to_string(Socket::MAX_NOREPLY_HOP),IP_ADDR);
             }else{
                 this->count = this->count +1;
             }
@@ -164,14 +165,14 @@
                 std::cerr << "Error opening output file\n";
             }
     }
-    void Socket::storeQuitErrorInJson(int ipcount, const std::string path){
+    void Socket::jsonKeyValuePair(int ipcount, const std::string& Key,const std::string& Value,const std::string path){
         std::ifstream file_in(path);
         nlohmann::json json;
+        file_in >> json;
         nlohmann::json newIP = {
-                {"EXIT_ERROR", "Quit after no packets received"},
+                {Key, Value},
             };
         json[JSON_TRACES_OBJECT][std::to_string(ipcount)].push_back(newIP);
-        file_in >> json;
         file_in.close();
         std::ofstream file_out(path);
         file_out <<json.dump(4);
