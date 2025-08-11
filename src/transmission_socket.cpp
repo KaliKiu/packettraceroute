@@ -74,7 +74,7 @@
         } else if (ret == 0) {
             // Timeout, no data available
             printf("Timeout: no data received in %dseconds\n",timeout.tv_sec);
-            Socket::jsonKeyValuePair(ipcount,"Timeout Error","HOP",IP_ADDR);
+            Socket::jsonKeyValuePair(ipcount,"Timeout Error",ttl,IP_ADDR);
             //check if having to quit;
             if(this->count>MAX_NOREPLY_HOP){
                 this->quit=true;
@@ -106,6 +106,7 @@
         } else {
             if (ippointer->destIP == ipInt) {
                 std::cout << "IP matches!" << std::endl;
+                //write end array !!IMPLEMENTATIOM!!
                 this->quit=true;
             } else {
                 
@@ -182,13 +183,13 @@
         file_out <<json.dump(4);
         file_out.close();
     }
-    void Socket::jsonKeyValuePair(int ipcount, const std::string& Key,int& Value,const std::string path){
+    void Socket::jsonKeyValuePair(int ipcount, const std::string& Key,int Value,const std::string path){
         std::ifstream file_in(path);
         nlohmann::json json;
         file_in >> json;
-        nlohmann::json newIP = {
-                {Key, Value},
-            };
+        nlohmann::json newIP;
+        newIP[Key]=Value;
+        
         json[JSON_TRACES_OBJECT][std::to_string(ipcount)].push_back(newIP);
         file_in.close();
         std::ofstream file_out(path);
