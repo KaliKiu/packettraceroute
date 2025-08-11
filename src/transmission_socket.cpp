@@ -12,6 +12,7 @@
 #include <cerrno>
 
     void Socket::createSocket(){
+        //set class obj vars
         this->quit=false;
         this->count = 0;
         int socketfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
@@ -49,7 +50,7 @@
             return;
             }
     }
-    std::vector<uint8_t> Socket::receivePacket(Packet::ipheader* ippointer,int ipcount) {
+    std::vector<uint8_t> Socket::receivePacket(Packet::ipheader* ippointer,int ipcount,int ttl) {
         uint8_t recvBuffer[1024];
         sockaddr_in recvAddr;
         socklen_t addrLen = sizeof(recvAddr);
@@ -73,9 +74,11 @@
         } else if (ret == 0) {
             // Timeout, no data available
             printf("Timeout: no data received in %dseconds\n",timeout.tv_sec);
+            Socket::jsonKeyValuePair(ipcount,"Timeout Error","HOP",IP_ADDR);
             //check if having to quit;
             if(this->count>MAX_NOREPLY_HOP){
                 this->quit=true;
+                Socket::jsonKeyValuePair(ipcount,Socket::JSON_HOP_COUNT_KEY,ttl,IP_ADDR);
                 Socket::jsonKeyValuePair(ipcount,"Timeout Error","Quit after getting no response after"+std::to_string(Socket::MAX_NOREPLY_HOP),IP_ADDR);
             }else{
                 this->count = this->count +1;
@@ -111,11 +114,11 @@
         printf("Received packet from %s:%u\n", ipStr, port);
 
         std::vector<uint8_t> packet(recvBuffer, recvBuffer + recv_bytes);
-        Socket::writeToFile(ipStr, Utils::bytes_to_hex(packet),ipcount);
+        Socket::writeToFile(ipStr, Utils::bytes_to_hex(packet),ipcount,ttl);
         return packet;
     }
 
-    void Socket::writeToFile(char ip[16],std::string packet,int ipcount){
+    void Socket::writeToFile(char ip[16],std::string packet,int ipcount,int ttl){
         using json = nlohmann::json;
         json json_in;
 
@@ -151,7 +154,8 @@
 
             json newIP = {
                 {"ip", std::string(ip)},
-                {"payload_in_hex", packet}
+                {"payload_in_hex", packet},
+                {Socket::JSON_HOP_COUNT_KEY,ttl}
             };
             //appand ttl sub array
             json_in[JSON_TRACES_OBJECT][std::to_string(ipcount)].push_back(newIP);
@@ -166,6 +170,19 @@
             }
     }
     void Socket::jsonKeyValuePair(int ipcount, const std::string& Key,const std::string& Value,const std::string path){
+        std::ifstream file_in(path);
+        nlohmann::json json;
+        file_in >> json;
+        nlohmann::json newIP = {
+                {Key, Value},
+            };
+        json[JSON_TRACES_OBJECT][std::to_string(ipcount)].push_back(newIP);
+        file_in.close();
+        std::ofstream file_out(path);
+        file_out <<json.dump(4);
+        file_out.close();
+    }
+    void Socket::jsonKeyValuePair(int ipcount, const std::string& Key,int& Value,const std::string path){
         std::ifstream file_in(path);
         nlohmann::json json;
         file_in >> json;

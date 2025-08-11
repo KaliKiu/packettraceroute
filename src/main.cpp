@@ -25,7 +25,7 @@ int main(){
             Packet::writePacketInFile(packet);
             Utils::printHexPacket(packet);
             socket.sendPacket(pack.ippointer,packet);
-            std::vector<uint8_t> respondPacket = socket.receivePacket(pack.ippointer,ipcount);
+            std::vector<uint8_t> respondPacket = socket.receivePacket(pack.ippointer,ipcount,ttl);
             Utils::printHexPacket(respondPacket);
             ttl++;
         }
@@ -43,7 +43,7 @@ int main(){
             Packet::writePacketInFile(packet);
             Utils::printHexPacket(packet);
             socket.sendPacket(pack.ippointer,packet);
-            std::vector<uint8_t> respondPacket = socket.receivePacket(pack.ippointer,j);
+            std::vector<uint8_t> respondPacket = socket.receivePacket(pack.ippointer,j,ttl);
             Utils::printHexPacket(respondPacket);
             ttl++;
         }
