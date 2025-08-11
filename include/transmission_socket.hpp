@@ -16,5 +16,6 @@ public:
     void sendPacket(Packet::ipheader* ippointer,std::vector<uint8_t> packet);
     std::vector<uint8_t> receivePacket(Packet::ipheader* ippointer,int ipcount);
     static void writeToFile(char ip[16],std::string packet,int ipcount);
+    void storeQuitErrorInJson(int ipcount,const std::string path);
 };
 #endif

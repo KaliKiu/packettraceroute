@@ -75,6 +75,7 @@
             //check if having to quit;
             if(this->count>MAX_NOREPLY_HOP){
                 this->quit=true;
+                Socket::storeQuitErrorInJson(ipcount,Socket::IP_ADDR);
             }else{
                 this->count = this->count +1;
             }
@@ -162,6 +163,19 @@
             } else {
                 std::cerr << "Error opening output file\n";
             }
+    }
+    void Socket::storeQuitErrorInJson(int ipcount, const std::string path){
+        std::ifstream file_in(path);
+        nlohmann::json json;
+        nlohmann::json newIP = {
+                {"EXIT_ERROR", "Quit after no packets received"},
+            };
+        json[JSON_TRACES_OBJECT][std::to_string(ipcount)].push_back(newIP);
+        file_in >> json;
+        file_in.close();
+        std::ofstream file_out(path);
+        file_out <<json.dump(4);
+        file_out.close();
     }
 
 
