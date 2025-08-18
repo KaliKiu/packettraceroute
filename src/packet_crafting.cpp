@@ -44,7 +44,7 @@
         //32bit (already network byte order)
         p->sourceIP = Packet::parseIPAddress(json["sourceIP"]); 
         p->destIP= Packet::parseIPAddress(json["destIP"][ip]);
-
+        std::cout<<"MEOW"<<p->destIP;
         
         std::cout <<"IP hdr should be 20bytes, is: "<<sizeof(*p);
         
@@ -151,4 +151,6 @@
         }
         return addr.s_addr;  // already in network byte order
     }
+    //8.8.8.8
+    //00001000000010001
     

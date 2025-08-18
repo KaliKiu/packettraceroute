@@ -41,7 +41,7 @@
         destAddr.sin_family = AF_INET;
         
         destAddr.sin_addr.s_addr = ippointer->destIP;
-    
+         
         ssize_t sent_bytes = sendto(this->socketfd,packet.data(),packet.size(),0,
                                     (struct sockaddr*)&destAddr,sizeof(destAddr));
         if (sent_bytes < 0) {
@@ -138,7 +138,7 @@
             }
             inFile.close();
         } else {
-            // File doesn't exist → start fresh
+            // File doesn't exist start fresh
             json_in = json::object();
         }
         //check for object
