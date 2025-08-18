@@ -3,7 +3,7 @@
 
 **WORK IN PROGRESS**
 
-(This repository is outdated, check out my 2.0 repository here:[threadedtraceroute](https:://www.github.com/KaliKiu/threadedtraceroute)) 
+This repository is outdated, check out my 2.0 repository here: [threadedtraceroute](https:://www.github.com/KaliKiu/threadedtraceroute) 
 
 ## Current Focus
 - **Better handling of waiting times and scalability**  
